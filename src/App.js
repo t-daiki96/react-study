@@ -4,68 +4,46 @@ import ToDoListItem from "./ToDoListItem.js"
 
 class App extends Component {
 
-  // ToDoListをstateに定義、初期値はlocalStorageから取得または []
-  state = {
-    todoList: JSON.parse(localStorage.getItem("todoList")) || []
+  // ToDoListをstateに定義、初期値は []
+  constructor(props) {
+    super(props);
+    this.state = {
+      todoList: []
+    };
+    this.formSubmit = this.formSubmit.bind(this);
   }
 
-  // todoList itemの追加
-  addTodo = (item, callBack) => {
-    // todoList stateに追加
-    this.setState(
-      {
-        todoList: this.state.todoList.concat(item)
-      },
-      () => {
-        // localStorageにtodoList stateを保存
-        localStorage.setItem("todoList", JSON.stringify(this.state.todoList))
-        // callBack関数が引数に渡されていた場合に実行
-        callBack && callBack()
-      }
-    )
-  }
+  formSubmit() {
+      const obj = document.getElementById("App-form");
+      obj.preventDefault();
 
-  // todoListからitemを削除
-  removeTodo = (item, callBack) => {
-    this.setState(
-      {
-        todoList: this.state.todoList.filter(x => x !== item)
-      },
-      () => {
-        // localStorageにtodoList stateを保存
-        localStorage.setItem("todoList", JSON.stringify(this.state.todoList))
-        // callBack関数が引数に渡されていた場合に実行
-        callBack && callBack()
-      }
-    )
-  }
+      // idがtitleのElementを取得
+      const titleElement = obj.target.elements["title"];
+      // idがdescriptionのElementを取得
+      const descriptionElement = obj.target.elements["description"];
 
+      // todoList stateに追加
+      this.setState(
+        {
+            todoList: this.state.todoList.concat({
+            title: titleElement.value,
+            description: descriptionElement.value
+          })
+        },
+        // stateの変更後に入力した値を空にする
+        () => {
+          titleElement.value = "";
+          descriptionElement.value = "";
+        }
+      )
+  }
   render() {
     return (
       <div className="App">
         <form
+          id="App-form"
           className="App-form"
-          onSubmit={e => {
-            // formのデフォルトのイベントをキャンセル
-            e.preventDefault();
-
-            // idがtitleのElementを取得
-            const titleElement = e.target.elements["title"]
-            // idがdescriptionのElementを取得
-            const descriptionElement = e.target.elements["description"];
-
-            this.addTodo(
-              {
-                title: titleElement.value,
-                description: descriptionElement.value
-              },
-              () => {
-                // stateの変更後に入力した値を空にする
-                titleElement.value = "";
-                descriptionElement.value = "";
-              }
-            )
-          }}
+          onSubmit={this.formSubmit}
         >
           <div>
             <input
@@ -87,14 +65,17 @@ class App extends Component {
         </form>
         <div>
         {/* todoList配列の要素数分ToDoListItemコンポーネントを展開 */}
-        <p>クリックで消せるよ</p>
           {this.state.todoList.map(todo => (
             <ToDoListItem
               key={todo.title}
               title={todo.title}
               description={todo.description}
               // クリックされたItemをtodoList stateから削除
-              onClick={() => this.removeTodo(todo)}
+              onClick={() => {
+                this.setState({
+                  todoList: this.state.todoList.filter(x => x !== todo)
+                })
+              }}
             />
           ))}
         </div>
