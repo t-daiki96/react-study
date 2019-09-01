@@ -2,87 +2,58 @@ import React, { Component } from 'react';
 import './css/App.css';
 import ToDoListItem from "./ToDoListItem.js"
 
-class App extends Component {
+const initialForm = { title: '', description: '' };
 
-  // ToDoListをstateに定義、初期値はlocalStorageから取得または []
-  state = {
-    todoList: JSON.parse(localStorage.getItem("todoList")) || []
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      todoList: [],
+      form: initialForm,
+    }
+  }
+
+  resetForm = () => {
+    this.setState({ ...this.state, form: initialForm });
+  }
+
+  setForm = (key, value) => {
+    this.setState({ ...this.state, form: { ...this.state.form, [key]: value }});
   }
 
   // todoList itemの追加
-  addTodo = (item, callBack) => {
+  addTodo = e => {
+    e.preventDefault();
     // todoList stateに追加
-    this.setState(
-      {
-        todoList: this.state.todoList.concat(item)
-      },
-      () => {
-        // localStorageにtodoList stateを保存
-        localStorage.setItem("todoList", JSON.stringify(this.state.todoList))
-        // callBack関数が引数に渡されていた場合に実行
-        callBack && callBack()
-      }
-    )
+    this.setState({ todoList: this.state.todoList.concat(this.state.form) }, this.resetForm());
   }
 
   // todoListからitemを削除
-  removeTodo = (item, callBack) => {
-    this.setState(
-      {
-        todoList: this.state.todoList.filter(x => x !== item)
-      },
-      () => {
-        // localStorageにtodoList stateを保存
-        localStorage.setItem("todoList", JSON.stringify(this.state.todoList))
-        // callBack関数が引数に渡されていた場合に実行
-        callBack && callBack()
-      }
-    )
+  removeTodo = (item) => {
+    this.setState({ todoList: this.state.todoList.filter(x => x !== item) });
   }
 
   render() {
+    const { title, description } = this.state.form;
     return (
       <div className="App">
-        <form
-          className="App-form"
-          onSubmit={e => {
-            // formのデフォルトのイベントをキャンセル
-            e.preventDefault();
-
-            // idがtitleのElementを取得
-            const titleElement = e.target.elements["title"]
-            // idがdescriptionのElementを取得
-            const descriptionElement = e.target.elements["description"];
-
-            this.addTodo(
-              {
-                title: titleElement.value,
-                description: descriptionElement.value
-              },
-              () => {
-                // stateの変更後に入力した値を空にする
-                titleElement.value = "";
-                descriptionElement.value = "";
-              }
-            )
-          }}
-        >
+        <form className="App-form">
           <div>
             <input
               id="title"
               placeholder="title"
+              value={title}
+              onChange={e => this.setForm('title', e.target.value)}
             />
             <textarea
               id="description"
               placeholder="description"
+              value={description}
+              onChange={e => this.setForm('description', e.target.value)}
             />
           </div>
           <div>
-            <button
-              type="submit"
-            >
-              登録
-            </button>
+            <button onClick={e => this.addTodo(e)}>登録</button>
           </div>
         </form>
         <div>
