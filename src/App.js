@@ -29,8 +29,8 @@ class App extends Component {
   }
 
   // todoListからitemを削除
-  removeTodo = (item) => {
-    this.setState({ todoList: this.state.todoList.filter(x => x !== item) });
+  removeTodo = (i) => {
+    this.setState({ todoList: this.state.todoList.filter((_, index) => index !== i) });
   }
 
   render() {
@@ -59,13 +59,13 @@ class App extends Component {
         <div>
         {/* todoList配列の要素数分ToDoListItemコンポーネントを展開 */}
         <p>クリックで消せるよ</p>
-          {this.state.todoList.map(todo => (
+          {this.state.todoList.map((todo, i) => (
             <ToDoListItem
-              key={todo.title}
+              key={`todo_${i}`}
               title={todo.title}
               description={todo.description}
               // クリックされたItemをtodoList stateから削除
-              onClick={() => this.removeTodo(todo)}
+              onClick={() => this.removeTodo(i)}
             />
           ))}
         </div>
