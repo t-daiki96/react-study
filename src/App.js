@@ -25,7 +25,7 @@ class App extends Component {
   addTodo = e => {
     e.preventDefault();
     // todoList stateに追加
-    this.setState({ todoList: this.state.todoList.concat(this.state.form) }, this.resetForm());
+    this.setState({ todoList: [...this.state.todoList, this.state.form] }, this.resetForm());
   }
 
   // todoListからitemを削除
